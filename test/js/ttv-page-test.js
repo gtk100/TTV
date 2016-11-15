@@ -12,9 +12,11 @@ describe('ttv test', function(){
         "game" : "game name 1",
         "viewers" : "490"
     };
+    var ttvService;
+    var ttvServiceFetchHit;
 
     beforeEach(function(){
-        var ttvService = {};
+        ttvService = {};
         var ttvDisTemplatePool = new TTVDisTemplatePool(ttvService);
         page = new TTVPage(ttvService, ttvDisTemplatePool);
         page.displayResults = document.createElement('div');
@@ -22,6 +24,7 @@ describe('ttv test', function(){
         page.currentPage = document.createElement('div');
         page.totalPages = document.createElement('div');
         page.queryData = document.createElement('input');
+        ttvServiceFetchHit = 0;
     });
 
     afterEach(function(){
@@ -100,6 +103,49 @@ describe('ttv test', function(){
         expect(page.currentPage.innerHTML).toBe("3");
         page.nextPage();        
         expect(page.currentPage.innerHTML).toBe("4");
+    });
+
+    it('searchQuery test', function(){
+
+        page.queryData.value = 'car';
+        ttvService.getBaseURL = function(){ return 'test.url?' };
+        ttvService.fetch = function(url, success, error){ 
+            ttvServiceFetchHit++; 
+            return success({"_total":10,"_links":{"self":"self.url","next":"next.url"},"streams":[stream, stream, stream, stream]}); 
+        };
+        page.searchQuery();
+        expect(ttvServiceFetchHit).toBe(1);
+    });
+
+    
+    it('searchSubQuery test', function(){
+
+        page.resultPerPage = 2;
+        page.queryLimit = 4;
+        page.queryData.value = 'car';
+        ttvService.getBaseURL = function(){ return 'test.url?' };
+        ttvService.fetch = function(url, success, error){
+            ttvServiceFetchHit++; 
+            success({"_total":10,"_links":{"self":"self.url","next":"next.url"},"streams":[stream, stream, stream, stream]}); 
+        };
+        page.searchQuery();
+        expect(ttvServiceFetchHit).toBe(1);
+        page.nextPage();        
+        expect(ttvServiceFetchHit).toBe(1);
+        page.nextPage();
+        expect(ttvServiceFetchHit).toBe(2);
+    });
+
+    it('Fetch does not hit if query is empty test', function(){
+
+        page.queryData.value = '';
+        ttvService.getBaseURL = function(){ return 'test.url?' };
+        ttvService.fetch = function(url, success, error){ 
+            ttvServiceFetchHit++; 
+            return success({"_total":10,"_links":{"self":"self.url","next":"next.url"},"streams":[stream, stream, stream, stream]}); 
+        };
+        page.searchQuery();
+        expect(ttvServiceFetchHit).toBe(0);
     });
 
     function initMultiplePageWithMoreAndSubset() {

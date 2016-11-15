@@ -26,7 +26,9 @@ TTVService.prototype.fetch = function(url, success, error) {
     var tempVar = Math.floor(Math.random() * 1000);
     tempVar = "TTVServiceFetchCallBack" + tempVar;
     window[tempVar] = this.fetchCallBack.bind(this, success, script);
-    script.src += url + '&' + this.auth + '&callback=' + tempVar;
+    if(!/\?$/.test(url))
+        url += '&';
+    script.src = url + this.auth + '&callback=' + tempVar;
     script.addEventListener('error', this.fetchErrorCallBack.bind(this, error, script));
     document.getElementsByTagName('head')[0].appendChild(script);
 }

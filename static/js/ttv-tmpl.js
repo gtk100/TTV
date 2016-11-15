@@ -17,7 +17,6 @@ function TTVDisTemplate(ttvService, template) {
     this.ttv_desc = this.template.getElementsByTagName('ttv-desc')[0];
     this.stream = null;
     this.videoPreview = null;
-    this.previewImage = null;
     this.videoPreviewRequired = false;
     this.videoPreviewFetched = false;
 }
@@ -29,7 +28,7 @@ TTVDisTemplate.prototype.showImagePreview = function() {
     
     console.debug("In showImagePreview");
     this.videoPreviewRequired = false;
-    this.ttv_image.src = this.previewImage;
+    this.ttv_image.src = this.stream.preview.medium;
 }
 
 /*
@@ -54,8 +53,8 @@ TTVDisTemplate.prototype.fetchVideoPreviewCallBack = function(response) {
     
     console.debug("In fetchVideoPreviewCallBack");
     this.videoPreviewFetched = true;
-    if(response.videos[0].animated_preview)
-        this.videoPreview = response.videos[0].animated_preview;
+    if(response.videos[0])
+        this.videoPreview = response.videos[0];
     this.applyVideoPreview();
 }
 
@@ -66,7 +65,7 @@ TTVDisTemplate.prototype.applyVideoPreview = function(response) {
     
     console.debug("In applyVideoPreview");
     if(this.videoPreview && this.videoPreviewRequired)
-        this.ttv_image.src = this.videoPreview;
+        this.ttv_image.src = this.videoPreview.animated_preview;
 }
 
 /*
@@ -103,7 +102,6 @@ TTVDisTemplate.prototype.setStream = function(stream) {
 */
 TTVDisTemplate.prototype.update = function(stream) {
     
-    this.previewImage = stream.preview.medium;
     this.ttv_image.src = stream.preview.medium;
     this.ttv_display_name.innerHTML = stream.channel.display_name;
     this.ttv_game.innerHTML = stream.game;

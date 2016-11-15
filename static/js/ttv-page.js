@@ -24,6 +24,7 @@ function TTVPage(ttvService, ttvDisTemplatePool) {
     this.informationPanel.className = 'information';
     document.getElementsByTagName('body')[0].appendChild(this.informationPanel);
     this.informationPanelPopulated = false;
+    this.informationPanelInProgress = null;
 }
 
 /*
@@ -92,9 +93,11 @@ TTVPage.prototype.showInformationPanel = function(force, message) {
         if(message)
             this.informationPanel.innerHTML = message;
         else
-            this.informationPanel.innerHTML = "Hover on image for animated preview";
+            this.informationPanel.innerHTML = "Hover on image for sample animated preview";
         this.informationPanel.style.display = "block";
-        setTimeout(this.hideInformationPanel.bind(this), 4000);
+        if(this.informationPanelInProgress)
+            clearTimeout(this.informationPanelInProgress);
+        this.informationPanelInProgress = setTimeout(this.hideInformationPanel.bind(this), 4000);
     }
 }
 
@@ -114,6 +117,7 @@ TTVPage.prototype.removeInformationPanel = function() {
 
     this.informationPanel.style.display = "none";
     this.informationPanel.style.opacity = 0.9;
+    this.informationPanelInProgress = null;
 }
 
 /*
